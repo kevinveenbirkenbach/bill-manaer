@@ -4,7 +4,6 @@
 # @param $2 language
 # @param $3 mode (update,initialize)
 # shellcheck disable=SC2144  # Deactivate wrong error message
-# sudo pacman -Syyu tesseract-data-deu tesseract-data-en tesseract
 if [ -z "$2" ]
   then
 		echo "You need to define an working directory and a language" && exit 1;
