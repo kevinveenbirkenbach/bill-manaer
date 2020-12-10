@@ -24,7 +24,7 @@ OUTPUT_FOLDER="$1/generated/" || exit 1
 if [ "$MODE" = "update" ]; then
 	echo "Updating bills..."
 else
-	if [ "$(ls -A "$TMP_FOLDER")" ]
+	if [ "$(ls -A "$OUTPUT_FOLDER")" ]
 		then
 			echo "Cleaning up $OUTPUT_FOLDER..."
 			rm -v "$OUTPUT_FOLDER"* || exit 1;
@@ -36,8 +36,17 @@ for origin_file in "$ORIGIN_FOLDER"*.*; do
 	if [ "$MODE" = "update" ] && [ ! -f "$OUTPUT_FOLDER$(basename "$origin_file")"* ] || [ "$MODE" = "initialize" ]; then
 		if [ "$(head -c 4 "$origin_file")" = "%PDF" ]; then
 			tmp_file="$TMP_FOLDER$(basename "$origin_file")"
-			echo "Generating $tmp_file..."
-			pdfimages "$origin_file" "$tmp_file"
+      txt_output_file="$OUTPUT_FOLDER$(basename "$origin_file").txt"
+      pdftotext "$origin_file" "$txt_output_file"
+      content="$(cat "$txt_output_file")"
+      if [ ${#content} -gt "9" ]
+        then
+          echo "Text successfully extracted to $txt_output_file:"
+          cat "$txt_output_file"
+        else
+          echo "Extract images..."
+          pdfimages "$origin_file" "$tmp_file"
+      fi
 		else
 			cp -v "$origin_file" "$TMP_FOLDER"
 		fi
@@ -57,3 +66,4 @@ if [ "$(ls -A "$TMP_FOLDER")" ]
 	else
 		echo "Skipped text generation because $TMP_FOLDER is empty..."
 fi
+echo "Cleanup..." && rm -v "$TMP_FOLDER"* && rmdir -v "$TMP_FOLDER";
