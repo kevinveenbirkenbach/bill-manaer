@@ -3,7 +3,6 @@
 # @param $1 Working directory
 # @param $2 language
 # @param $3 mode (update,initialize)
-# shellcheck disable=SC2144  # Deactivate wrong error message
 if [ -z "$2" ]
   then
 		echo "You need to define an working directory and a language" && exit 1;
@@ -33,7 +32,7 @@ else
 		fi
 fi
 for origin_file in "$ORIGIN_FOLDER"*.*; do
-	if [ "$MODE" = "update" ] && [ ! -f "$OUTPUT_FOLDER$(basename "$origin_file")"* ] || [ "$MODE" = "initialize" ]; then
+	if [ "$MODE" = "update" ] && [ "$(find "$OUTPUT_FOLDER" -name "$(basename "$origin_file")"* -printf '.' | wc -m)" -lt "1" ] || [ "$MODE" = "initialize" ]; then
 		if [ "$(head -c 4 "$origin_file")" = "%PDF" ]; then
 			tmp_file="$TMP_FOLDER$(basename "$origin_file")"
       txt_output_file="$OUTPUT_FOLDER$(basename "$origin_file").txt"
