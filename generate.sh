@@ -1,18 +1,26 @@
 #!/bin/bash
 # @see https://faceted.wordpress.com/2010/07/11/how-to-extract-text-from-pdf-files-using-poppler-and-gocr-on-ubuntu/
 # sudo pacman -Syyu tesseract-data-deu tesseract-data-en tesseract
-PPM_FOLDER="$PWD/ppm/";
-PDF_FOLDER="$PWD/pdf/";
-TXT_FOLDER="$PWD/txt/";
-for pdf_origin_file in $PDF_FOLDER*.*; do
-	ppm_output_file="$PPM_FOLDER$(basename $pdf_origin_file)"
-	echo "Generating $ppm_output_file..."
-	pdfimages $pdf_origin_file $ppm_output_file
+if [ -z "$1" ]
+  then
+		echo "You need to define an working directory" && exit 1;
+fi
+TMP_FOLDER="$(mktemp -d)/"
+ORIGIN_FOLDER="$1/origin/";
+OUTPUT_FOLDER="$1/readable/";
+for origin_file in "$ORIGIN_FOLDER"*.*; do
+	if [ "$(head -c 4 "$origin_file")" = "%PDF" ]; then
+		tmp_file="$TMP_FOLDER$(basename "$origin_file")"
+		echo "Generating $tmp_file..."
+		pdfimages "$origin_file" "$tmp_file"
+	else
+		cp "$origin_file" "$TMP_FOLDER"
+	fi
 done
-for ppm_origin_file in $PPM_FOLDER*.ppm; do
-	txt_output_file_without_suffix="$TXT_FOLDER$(basename $ppm_origin_file)";
+for tesseract_input_file in "$TMP_FOLDER"*.*; do
+	txt_output_file_without_suffix="$OUTPUT_FOLDER$(basename "$origin_file")";
 	echo "Generating $txt_output_file_without_suffix.txt..."
-	tesseract -l deu+eng "$ppm_origin_file" "$txt_output_file_without_suffix";
+	tesseract -l deu "$tesseract_input_file" "$txt_output_file_without_suffix";
 	echo "file content:"
 	cat "$txt_output_file_without_suffix.txt"
 done
