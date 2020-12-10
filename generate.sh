@@ -44,6 +44,7 @@ for origin_file in "$ORIGIN_FOLDER"*.*; do
           echo "Text successfully extracted to $txt_output_file:"
           cat "$txt_output_file"
         else
+          rm -v "$txt_output_file"
           echo "Extract images..."
           pdfimages "$origin_file" "$tmp_file"
       fi
